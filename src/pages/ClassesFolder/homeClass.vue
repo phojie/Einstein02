@@ -92,7 +92,7 @@ import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    'gradingTable': require('components/Table/gradingTable.vue').default,
+    'gradingTable': require('components/table/gradingTable.vue').default,
     'addStudentForm': require('components/ClassCompo/addStudentForm.vue').default
   },
   data () {
