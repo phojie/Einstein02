@@ -1,0 +1,346 @@
+<template>
+  <div>
+    <q-table
+      flat
+      bordered
+      :data="myClassLists"
+      :columns="columns"
+      :rows-per-page-options="[]"
+      row-key="name"
+      :filter="filter"
+      :pagination.sync="pagination"
+      content-class="text-h2"
+    >
+      <template v-slot:top="props">
+        <div
+          style="font-size:22px"
+          class="text-blue-10 q-table__title"
+        >
+          <q-icon
+            square
+            name="assignment"
+          />
+          Students Lists
+        </div>
+        <q-space />
+        <q-input
+          borderless
+          debounce="300"
+          v-model="filter"
+          placeholder="Search"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+        <q-btn
+          round
+          dense
+          color="red"
+          :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+          @click="props.toggleFullscreen"
+          class="q-ml-md"
+        />
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td
+            key="fullname"
+            :props="props"
+          >
+            {{ props.row.__index + 1 }}.
+            {{ `${props.row.lastname}, ${props.row.firstname}`}} {{`${props.row.middlename.charAt(0)}.` || ''}}
+          </q-td>
+          <q-td
+            key="course"
+            :props="props"
+          >
+            <div class="text-pre-wrap">{{ props.row.course }}</div>
+          </q-td>
+
+          <q-td
+            key="prelim"
+            :props="props"
+           >
+            <span class="text-bold">
+              {{ props.row.prelim }}
+            </span>
+            <q-popup-edit
+              touch-position
+              v-model.number="props.row.prelim"
+              buttons
+              @input="updateMutation(props.row)"
+              label-set="Save"
+              :validate="validateGrade"
+              @save="saveGrade(props.row)"
+               @hide="validateGrade"
+            >
+              <template slot="title">
+                <div class="text-subtitle2">
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Prelim
+                </div>
+              </template>
+              <q-input
+                type="number"
+                v-model.number="props.row.prelim"
+                dense
+                autofocus
+                :error="errorGrade"
+                :error-message="errorMessage"
+              />
+            </q-popup-edit>
+          </q-td>
+          <q-td
+            key="midterm"
+            :props="props"
+           >
+            <span class="text-bold">
+              {{ props.row.midterm }}
+            </span>
+            <q-popup-edit
+              v-model.number="props.row.midterm"
+              buttons
+              @input="updateMutation(props.row)"
+              label-set="Save"
+              :validate="validateGrade"
+              @save="saveGrade(props.row)"
+               @hide="validateGrade"
+            >
+              <template slot="title">
+                <div class="text-subtitle2">
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Midterm
+                </div>
+              </template>
+              <q-input
+                type="number"
+                v-model.number="props.row.midterm"
+                dense
+                mask="###"
+                autofocus
+                :error="errorGrade"
+                :error-message="errorMessage"
+              />
+            </q-popup-edit>
+          </q-td>
+          <q-td
+            key="semi"
+            :props="props"
+           >
+            <span class="text-bold">
+              {{ props.row.semi }}
+            </span>
+            <q-popup-edit
+              v-model.number="props.row.semi"
+              buttons
+              @input="updateMutation(props.row)"
+              label-set="Save"
+              :validate="validateGrade"
+              @save="saveGrade(props.row)"
+               @hide="validateGrade"
+            >
+              <template slot="title">
+                <div class="text-subtitle2">
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Semi
+                </div>
+              </template>
+              <q-input
+                type="number"
+                v-model.number="props.row.semi"
+                dense
+                mask="###"
+                autofocus
+                :error="errorGrade"
+                :error-message="errorMessage"
+              />
+            </q-popup-edit>
+          </q-td>
+           <q-td
+            key="final"
+            :props="props"
+          >
+            <span class="text-bold">
+              {{ props.row.final }}
+            </span>
+            <q-popup-edit
+              v-model.number="props.row.final"
+              buttons
+              @input="updateMutation(props.row)"
+              label-set="Save"
+              :validate="validateGrade"
+              @save="saveGrade(props.row)"
+               @hide="validateGrade"
+            >
+              <template slot="title">
+                <div class="text-subtitle2">
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Final
+                </div>
+              </template>
+              <q-input
+                type="number"
+                v-model.number="props.row.final"
+                dense
+                mask="###"
+                autofocus
+                :error="errorGrade"
+                :error-message="errorMessage"
+              />
+            </q-popup-edit>
+          </q-td>
+          <q-td
+            key="rounded"
+            :props="props"
+          >
+            <q-avatar
+                color="blue-1"
+                text-color="black"
+                size="sm"
+              >
+              <span class="text-weight-bolder">
+                 {{ props.row.rounded }}
+              </span>
+
+            </q-avatar>
+          </q-td>
+          <q-td
+            key="remarks"
+            :props="props"
+          >
+            <q-chip  square  dense v-if="props.row.remarks ==='Excellent'" class=" glossy" color="light-green-10" text-color="white" icon="star">Excellent</q-chip>
+            <q-chip   square dense v-else-if="props.row.remarks ==='Very Satisfactory'" class="glossy" color="light-green" text-color="white">Very Satisfactory</q-chip>
+            <q-chip  square dense v-else-if="props.row.remarks ==='Satisfactory'" class="glossy" color="lime" text-color="white">Satisfactory</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Fair'" class="glossy" color="amber" text-color="white">Fair</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Poor'" class="glossy" color="orange-8" text-color="white">Poor</q-chip>
+            <q-chip  square dense v-else-if="props.row.remarks ==='Failed'" class=" glossy" color="red-5" text-color="white">Failed</q-chip>
+          </q-td>
+          <q-td
+            key="action"
+            :props="props"
+          >
+            <q-btn
+              round
+              @click="confirm(props.row)"
+              flat
+              color="orange-8"
+            >
+              <q-icon name="delete_sweep" />
+              <q-tooltip>Delete {{props.row.fullname}}</q-tooltip>
+            </q-btn>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+    <!-- <pre>
+      {{myClassLists}}
+    </pre> -->
+  </div>
+</template>
+
+<script>
+
+import { mapGetters, mapActions } from 'vuex'
+
+const columns = [
+  { sortable: true, headerClasses: 'bg-primary text-white', classes: 'bg-grey-2 ', name: 'fullname', align: 'left', label: 'Name', field: 'fullname' },
+  { classes: '', name: 'course', align: 'left', label: 'Course', field: 'course' },
+  { classes: '', name: 'prelim', label: 'Prelim', field: 'prelim' },
+  { classes: '', name: 'midterm', label: 'Midterm', field: 'midterm' },
+  { classes: '', name: 'semi', label: 'Semi-Final', field: 'semi' },
+  { classes: '', name: 'final', label: 'Final', field: 'final' },
+  { classes: '', name: 'rounded', label: 'Rounded', field: 'rounded' },
+  { classes: '', name: 'remarks', align: 'middle', label: 'Remarks', field: 'remarks' },
+  { classes: '', name: 'action', label: 'Action', field: 'action' }
+]
+
+export default {
+  data () {
+    return {
+      filter: '',
+      columns,
+      pagination: {
+        rowsPerPage: 10, // current rows per page being displayed
+        recentRowsPerPage: 0
+      },
+      errorGrade: false,
+      errorMessage: ''
+    }
+  },
+  computed: {
+    ...mapGetters('admin', ['studentLists', 'myClassLists']),
+    classId () {
+      return this.$route.params.classId
+    }
+  },
+  methods: {
+    ...mapActions('admin', ['registrarStudentLists', 'getMyclassStudents', 'deleteMyClassStudents', 'saveGradeNow']),
+    validateGrade (val) {
+      if (val > 5) {
+        this.errorGrade = true
+        this.errorMessage = 'Maximum grade is only 5'
+        return false
+      }
+      this.errorGrade = false
+      this.errorMessage = ''
+      return true
+    },
+    saveGrade (data) {
+      let vm = this
+      vm.saveGradeNow({ 'data': data, 'classId': vm.$route.params.classId })
+        .then(function (result) {
+          vm.$q.notify({
+            message: `<span class="text-weight-bolder ">${data.fullname}</span>  Grade is successfully updated `,
+            timeout: 4000,
+            html: true,
+            color: 'primary',
+            position: 'bottom-left',
+            icon: 'system_update_alt',
+            classes: ' text-bold text-caption shadow-19'
+          })
+          var audio = new Audio('/statics/audioJie/notification.mp3')
+          audio.play()
+        })
+    },
+    updateMutation (data) {
+      console.log(data)
+    },
+    confirm (data) {
+      let vm = this
+      console.log(data)
+      this.$q.dialog({
+        title: 'Confirm',
+        message: `Are you sure you want to delete <span class="text-red-8 text-weight-bold">${data.fullname} </span> `,
+        cancel: true,
+        html: true,
+        ok: {
+          color: 'red',
+          flat: true,
+          label: 'Delete'
+        },
+        persistent: true
+      }).onOk(() => {
+        vm.deleteMyClassStudents({ 'data': data, 'classId': vm.$route.params.classId })
+          .then(function (result) {
+            // ' + data.fullname + '
+            vm.$q.notify({
+              message: 'Student : ' + data.fullname + ' Successfully deleted',
+              color: 'negative',
+              timeout: 2000,
+              position: 'bottom',
+              icon: 'delete_sweep'
+            })
+          })
+      })
+    }
+
+  },
+  mounted () {
+    this.registrarStudentLists()
+    this.getMyclassStudents(this.$route.params.classId)
+  }
+}
+</script>
+
+<style>
+.myNotify {
+  border: 2px solid #027BE3
+}
+</style>

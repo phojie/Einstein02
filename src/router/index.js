@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-
 import routes from './routes'
+import { LocalStorage } from 'quasar'
 
 Vue.use(VueRouter)
 
@@ -20,6 +20,23 @@ export default function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
+  })
+
+  Router.beforeEach((to, from, next) => {
+    const currentUser = LocalStorage.getItem('uid')
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    if (requiresAuth && !currentUser) {
+      next({
+        path: '/auth',
+        query: {
+          redirect: 'Robert,Raf,Senarlo,Gabriel,Francis,Nickol is on fire'
+        }
+      })
+    } else if (!requiresAuth && currentUser) {
+      next()
+    } else {
+      next()
+    }
   })
 
   return Router
