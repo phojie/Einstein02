@@ -1,9 +1,9 @@
 <template>
   <q-page class="flex flex-center">
-    test
     <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-full.svg"
+      height="180px"
+      alt="Ckcm logo"
+      src="/statics/jieIcons/apple-touch-icon-180x180.png"
     >
   </q-page>
 </template>

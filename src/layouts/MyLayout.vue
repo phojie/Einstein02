@@ -19,7 +19,7 @@
         >
           <q-avatar size="35px">
             <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQy_QdgtqgGznCPecFDuVPeD3jhQNKyUhxoRUiPRCWSC7xc1kiL"
+              src="/statics/jieIcons/apple-touch-icon.png"
               alt=""
             >
           </q-avatar>
@@ -336,7 +336,7 @@ export default {
 
   },
   methods: {
-    ...mapActions('admin', ['signOutNow', 'getClassLists']),
+    ...mapActions('admin', ['signOutNow', 'getClassLists', 'registrarStudentLists']),
     signOutNow () {
       // console.log('test')
       let vm = this
@@ -387,6 +387,10 @@ export default {
             .map(op => ({ label: op }))
         ]
       })
+    },
+    created () {
+      this.registrarStudentLists()
+      this.getClassLists()
     }
   }
 

@@ -38,9 +38,9 @@
                     </q-toolbar-title>
                   </div>
                   <div class="text-subtitle2">{{list.subjectCode}}</div>
-                  <div class="text-subtitle2">25 Students</div>
+                  <!-- <div class="text-subtitle2">25 Students</div> -->
                   <q-chip
-                    class="q-ma-none"
+                    class="q-ma-none q-mt-md"
                     size="12px"
                     square
                     icon="bookmark"
@@ -220,18 +220,18 @@ export default {
 </script>
 
 <style scoped>
-.bgHead {
-  height: 100%;
-  background-image: url("https://gstatic.com/classroom/themes/img_backtoschool.jpg");
-  /* background-image: url("https://www.gstatic.com/classroom/themes/img_learnlanguage.jpg"); */
-  /* background-image: url("https://www.gstatic.com/classroom/themes/img_bookclub.jpg"); */
-  background-size: cover;
-  background-position: -200px -5px;
-  background-repeat: no-repeat;
-  background-color: radial-gradient(
-    25rem 18.75rem ellipse at bottom right,
-    blue,
-    transparent
-  );
-}
+  .bgHead {
+    height: 100%;
+    background-image: url("https://gstatic.com/classroom/themes/img_backtoschool.jpg");
+    /* background-image: url("https://www.gstatic.com/classroom/themes/img_learnlanguage.jpg"); */
+    /* background-image: url("https://www.gstatic.com/classroom/themes/img_bookclub.jpg"); */
+    background-size: cover;
+    /* background-position: -200px -5px; */
+    background-repeat: no-repeat;
+    background-color: radial-gradient(
+      25rem 18.75rem ellipse at bottom right,
+      blue,
+      transparent
+    );
+  }
 </style>

@@ -35,25 +35,30 @@ export function calCuRounded (data) {
       rounded: finalGradeRounded
     }
 
-    // && data.prelim === null && data.midterm !== null && data.prelim !== null && data.prelim !== null
-    if (finalGradeRounded === 0) {
-      remarksRound.remarks = 'No Grade'
-    } else if (finalGradeRounded <= 1.2) {
-      remarksRound.remarks = 'Excellent'
-    } else if (finalGradeRounded <= 1.6) {
-      remarksRound.remarks = 'Very Satisfactory'
-    } else if (finalGradeRounded <= 2) {
-      remarksRound.remarks = 'Satisfactory'
-    } else if (finalGradeRounded <= 2.5) {
-      remarksRound.remarks = 'Fair'
-    } else if (finalGradeRounded <= 3) {
-      remarksRound.remarks = 'Poor'
-    } else if (finalGradeRounded > 3) {
-      remarksRound.remarks = 'Failed'
-    } else {
-      console.log(remarksRound)
-    }
+    // &&
 
+    if (data.prelim === '' || data.midterm === '' || data.semi === '' || data.final === '' | data.prelim === null || data.midterm === null || data.semi === null || data.final === null) {
+      remarksRound.remarks = 'In Progress'
+    } else {
+      if (finalGradeRounded === 0) {
+        remarksRound.remarks = 'No Grade'
+      } else if (finalGradeRounded <= 1.2) {
+        remarksRound.remarks = 'Excellent'
+      } else if (finalGradeRounded <= 1.6) {
+        remarksRound.remarks = 'Very Satisfactory'
+      } else if (finalGradeRounded <= 2) {
+        remarksRound.remarks = 'Satisfactory'
+      } else if (finalGradeRounded <= 2.5) {
+        remarksRound.remarks = 'Fair'
+      } else if (finalGradeRounded <= 3) {
+        remarksRound.remarks = 'Poor'
+      } else if (finalGradeRounded > 3) {
+        remarksRound.remarks = 'Failed'
+      } else {
+        console.log('else dre', remarksRound)
+      }
+    }
+    // console.log(data)
     resolve(remarksRound)
   })
 }

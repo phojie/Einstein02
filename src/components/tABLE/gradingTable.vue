@@ -4,18 +4,34 @@
       flat
       bordered
       :data="myClassLists"
+      :fullscreen.sync="isFullscreen"
       :columns="columns"
       :rows-per-page-options="[]"
       row-key="name"
+      :separator="separator"
       :filter="filter"
       :pagination.sync="pagination"
       content-class="text-h2"
+      :hide-bottom="hidebottom"
+      :visible-columns="visibleColumns"
+      table-class="overFlowHidemeNOt"
+      :loading="loading"
     >
-      <template v-slot:top="props">
+      <template  v-slot:top="props" >
+        <!-- <div class="print-only fit row wrap justify-center items-start content-start ">
+          <div>
+            <q-avatar>
+            <img src="/statics/jieIcons/apple-touch-icon-180x180.png" alt="">
+            </q-avatar>
+          </div> -->
+          <div class="headerArea">
+          </div>
+        <!-- </div> -->
+
         <div
           style="font-size:22px"
-          class="text-blue-10 q-table__title"
-        >
+          class="print-hide text-blue-10 q-table__title"
+         >
           <q-icon
             square
             name="assignment"
@@ -23,24 +39,54 @@
           Students Lists
         </div>
         <q-space />
+
         <q-input
-          borderless
+          dense
+          clearable
           debounce="300"
           v-model="filter"
           placeholder="Search"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
+          class="print-hide q-mr-md-lg text-body1"
+         >
+          <q-icon
+            slot="append"
+            name="search"
+          />
         </q-input>
+
+        <q-select
+          class="print-hide"
+          v-model="visibleColumns"
+          multiple
+          dense
+          outlined=""
+          options-dense
+          :display-value="$q.lang.table.columns"
+          emit-value
+          map-options
+          :options="columns"
+          option-value="name"
+          style="min-width: 150px"
+        />
+
+        <q-avatar
+          icon="print"
+          class="print-hide q-ml-md-md cursor-pointer"
+          @click="printStudents"
+         >
+          <q-tooltip>
+            Print
+          </q-tooltip>
+        </q-avatar>
         <q-btn
           round
           dense
           color="red"
           :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
           @click="props.toggleFullscreen"
-          class="q-ml-md"
-        />
+          class="print-hide q-ml-md"
+         />
+
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
@@ -87,7 +133,11 @@
                 autofocus
                 :error="errorGrade"
                 :error-message="errorMessage"
-              />
+              >
+                <template v-slot:prepend>
+                  <q-icon size="15px" name="rate_review" />
+                </template>
+              </q-input>
             </q-popup-edit>
           </q-td>
           <q-td
@@ -190,9 +240,10 @@
             key="rounded"
             :props="props"
           >
+           <div class="print-hide">
             <q-avatar
-                color="blue-1"
-                text-color="black"
+                color="blue-7"
+                text-color="white"
                 size="sm"
               >
               <span class="text-weight-bolder">
@@ -200,17 +251,32 @@
               </span>
 
             </q-avatar>
+           </div>
+           <div class="print-only">
+            {{props.row.rounded}}
+           </div>
           </q-td>
           <q-td
             key="remarks"
             :props="props"
           >
-            <q-chip  square  dense v-if="props.row.remarks ==='Excellent'" class=" glossy" color="light-green-10" text-color="white" icon="star">Excellent</q-chip>
-            <q-chip   square dense v-else-if="props.row.remarks ==='Very Satisfactory'" class="glossy" color="light-green" text-color="white">Very Satisfactory</q-chip>
-            <q-chip  square dense v-else-if="props.row.remarks ==='Satisfactory'" class="glossy" color="lime" text-color="white">Satisfactory</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Fair'" class="glossy" color="amber" text-color="white">Fair</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Poor'" class="glossy" color="orange-8" text-color="white">Poor</q-chip>
-            <q-chip  square dense v-else-if="props.row.remarks ==='Failed'" class=" glossy" color="red-5" text-color="white">Failed</q-chip>
+           <div class="print-only">
+             <span v-if="props.row.remarks ==='In Progress'">
+               Incomplete
+             </span>
+             <span v-else>
+              {{props.row.remarks}}
+             </span>
+           </div>
+           <div class="print-hide">
+            <q-chip square  dense v-if="props.row.remarks ==='Excellent'" class="text-caption glossy" color="light-green-10" text-color="white" icon="star">Excellent</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Very Satisfactory'" class="text-caption glossy" color="light-green" text-color="white">Very Satis...</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Satisfactory'" class="text-caption glossy" color="lime-8" text-color="white">Satisfactory</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Fair'" class="text-caption glossy" color="lime-6 " text-color="white">Fair</q-chip>
+            <q-chip square dense v-else-if="props.row.remarks ==='Poor'" class="text-caption glossy" color="amber-6" text-color="white">Poor</q-chip>
+            <q-chip  square dense v-else-if="props.row.remarks ==='Failed'" class="text-caption glossy" color="red-6" text-color="white">Failed</q-chip>
+            <q-chip v-else-if="props.row.remarks ==='In Progress'" square dense  class="text-caption glossy" color="blue-5" text-color="white">In Progress</q-chip>
+           </div>
           </q-td>
           <q-td
             key="action"
@@ -243,17 +309,21 @@ const columns = [
   { sortable: true, headerClasses: 'bg-primary text-white', classes: 'bg-grey-2 ', name: 'fullname', align: 'left', label: 'Name', field: 'fullname' },
   { classes: '', name: 'course', align: 'left', label: 'Course', field: 'course' },
   { classes: '', name: 'prelim', label: 'Prelim', field: 'prelim' },
-  { classes: '', name: 'midterm', label: 'Midterm', field: 'midterm' },
-  { classes: '', name: 'semi', label: 'Semi-Final', field: 'semi' },
-  { classes: '', name: 'final', label: 'Final', field: 'final' },
-  { classes: '', name: 'rounded', label: 'Rounded', field: 'rounded' },
-  { classes: '', name: 'remarks', align: 'middle', label: 'Remarks', field: 'remarks' },
+  { name: 'midterm', label: 'Midterm', field: 'midterm' },
+  { name: 'semi', label: 'Semi', field: 'semi' },
+  { name: 'final', label: 'Final', field: 'final' },
+  { sortable: true, style: 'max-width: 20px;', name: 'rounded', label: 'Rounded', field: 'rounded' },
+  { name: 'remarks', label: 'Remarks', align: 'left', field: 'remarks' },
   { classes: '', name: 'action', label: 'Action', field: 'action' }
 ]
 
 export default {
   data () {
     return {
+      separator: 'cell',
+      visibleColumns: ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks'],
+      hidebottom: false,
+      isFullscreen: false,
       filter: '',
       columns,
       pagination: {
@@ -268,14 +338,50 @@ export default {
     ...mapGetters('admin', ['studentLists', 'myClassLists']),
     classId () {
       return this.$route.params.classId
+    },
+    loading () {
+      if (this.myClassLists.length) {
+        return false
+      } else {
+        return false
+      }
     }
   },
   methods: {
     ...mapActions('admin', ['registrarStudentLists', 'getMyclassStudents', 'deleteMyClassStudents', 'saveGradeNow']),
+    printStudents () {
+      this.$q.loading.show({
+        spinner: null
+      })
+      this.isFullscreen = true
+      this.visibleColumns = ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks']
+      this.pagination.recentRowsPerPage = this.pagination.rowsPerPage
+      this.pagination.rowsPerPage = 0
+      this.hidebottom = true
+
+      this.timer = setTimeout(() => {
+        this.visibleColumns = ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks']
+        this.$q.loading.hide()
+        this.timer = void 0
+        window.print(event)
+        this.isFullscreen = false
+        this.hidebottom = false
+        this.pagination.rowsPerPage = this.pagination.recentRowsPerPage
+
+        // window.onafterprint = function () {
+        //   console.log('Printing completed...')
+        // }
+      }, 200)
+    },
     validateGrade (val) {
       if (val > 5) {
         this.errorGrade = true
         this.errorMessage = 'Maximum grade is only 5'
+        return false
+      }
+      if (val === 0) {
+        this.errorGrade = true
+        this.errorMessage = 'Invalid grade'
         return false
       }
       this.errorGrade = false
@@ -343,4 +449,30 @@ export default {
 .myNotify {
   border: 2px solid #027BE3
 }
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+
+}
+
+@media print {
+  .headerArea {
+    background-image: url('/statics/ckcm/header.png');
+    /* background-image: url('/statics/svgBG/jie1.png'); */
+    background-size: 100%;
+    width:70%;
+    background-repeat: no-repeat;
+    height:200px
+  }
+
+  .overFlowHidemeNOt{
+    overflow: hidden !important;
+  }
+  .print-hide {
+    display: none !important;
+  }
+}
 </style>
+
+.
