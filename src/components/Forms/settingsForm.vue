@@ -2,7 +2,7 @@
   <div class="row justify-between items-start content-center q-gutter-y-md ">
     <div class="col-xs-12" v-if="!loading">
       <q-banner class="bg-transparent q-mb-md">
-        <div class="q-mb-sm text-h5 text-medium" style="font-size:30px">Welcome to <span class="text-weight-bold text-green">Tech76</span> Grading System</div>
+        <div class="q-mb-sm text-h5 text-medium" style="font-size:30px">Welcome to <span class="text-weight-bold text-green">CKCM</span> Grading System</div>
         <div class="text-h5 text-weight-light text-grey-8" style="font-size:20px"> Let's get you set up!</div>
       </q-banner>
       <q-stepper
