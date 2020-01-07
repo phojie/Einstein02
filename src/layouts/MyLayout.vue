@@ -23,6 +23,7 @@
               alt=""
             >
           </q-avatar>
+
         </q-btn>
 
         <q-select
@@ -324,15 +325,12 @@ export default {
       options: null,
       filteredOptions: [],
       addClassDialog: false,
-      userFire: []
+      userFire: [],
+      firstLoginYes: false
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists', 'userDetails']),
-    firstLoginYes () {
-      const loginType = LocalStorage.getItem('FirstLogin')
-      return loginType
-    }
+    ...mapGetters('admin', ['classLists', 'userDetails'])
 
   },
   methods: {
@@ -387,11 +385,15 @@ export default {
             .map(op => ({ label: op }))
         ]
       })
-    },
-    created () {
-      this.registrarStudentLists()
-      this.getClassLists()
     }
+
+  },
+  created () {
+    var loginType = LocalStorage.getItem('FirstLogin')
+    this.firstLoginYes = loginType
+    console.log('test', loginType)
+    this.registrarStudentLists()
+    this.getClassLists()
   }
 
 }

@@ -1,8 +1,7 @@
 import addLodash from 'lodash/add.js'
 import floorLodash from 'lodash/floor.js'
 import round from 'lodash/round.js'
-export function calCuRounded (res) {
-  let data = res.data
+export function calCuRounded (data) {
   return new Promise((resolve, reject) => {
     // let _oneThird = _.divide(1,3)
     let prelimCummu = data.prelim * 1 / 3
@@ -33,8 +32,7 @@ export function calCuRounded (res) {
     // end semi cumulative rounded
     var remarksRound = {
       remarks: null,
-      rounded: finalGradeRounded,
-      data: data
+      rounded: finalGradeRounded
     }
 
     // &&

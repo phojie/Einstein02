@@ -67,7 +67,7 @@
 <script>
 import forEach from 'lodash/forEach.js'
 import axios from 'axios'
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 var stringOptions = []
 
@@ -91,7 +91,9 @@ export default {
       options: stringOptions
     }
   },
-
+  computed: {
+    ...mapGetters('admin', ['userDetails'])
+  },
   methods: {
     ...mapActions('admin', ['addClassStudent']),
     filterFn (val, update, abort) {
@@ -106,9 +108,11 @@ export default {
     },
     addStudentThis (data) {
       let vm = this
+      console.log(vm.userDetails)
       this.addClassStudent({
         'data': data,
-        'classId': vm.$route.params.classId
+        'classId': vm.$route.params.classId,
+        'instructorId': vm.userDetails.keyIndex
       })
         .then(function (result) {
           vm.model = null

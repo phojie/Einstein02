@@ -26,21 +26,20 @@ const routes = [
         path: '/classes/:classId',
         component: () => import('pages/ClassesFolder/homeClass.vue'),
         name: 'classDash'
-      },
-      {
-        path: '/settings',
-        name: 'settings',
-        component: () => import('layouts/yawaSettings/settingDash.vue'),
-        children: [
-          {
-            path: 'profile',
-            component: () => import('pages/Login/firstTime.vue')
-          }
-        ]
       }
     ]
   },
-
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('layouts/yawaSettings/settingDash.vue'),
+    children: [
+      {
+        path: 'profile',
+        component: () => import('pages/Login/firstTime.vue')
+      }
+    ]
+  },
   {
     path: '/auth',
     component: () => import('layouts/LandingLayout.vue'),

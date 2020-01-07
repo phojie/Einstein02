@@ -11,7 +11,12 @@
 <script>
 import { LocalStorage } from 'quasar'
 export default {
-  beforeCreate () {
+  created () {
+    if (this.$route.params.authyes === 'authSucr343wer5545') {
+      this.$router.push({
+        path: '/'
+      })
+    }
     let firstLogin = this.$route.meta.firstLogin
     const loginType = LocalStorage.getItem('FirstLogin')
     if (firstLogin && loginType) {

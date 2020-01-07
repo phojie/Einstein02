@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- <pre>
+      {{myClassLists}}
+    </pre> -->
     <q-table
       flat
       bordered
@@ -18,15 +21,41 @@
       :loading="loading"
     >
       <template  v-slot:top="props" >
-        <!-- <div class="print-only fit row wrap justify-center items-start content-start ">
-          <div>
-            <q-avatar>
-            <img src="/statics/jieIcons/apple-touch-icon-180x180.png" alt="">
-            </q-avatar>
-          </div> -->
-          <div class="headerArea">
+        <div class="print-only fit column justify-center items-center content-center ">
+          <div class="headerArea" >
           </div>
-        <!-- </div> -->
+        </div>
+        <div style="margin-top:-50px !important" class="print-only fit row justify-center">
+          <div class="col-12 row wrap">
+            <div class="col-8 row wrap">
+              <div class="text-subtitle2 text-weight-bold">College Instructor:</div>
+              <div class="q-ml-md text-subtitle2 text-weight-bold">{{userDetails.firstname}} {{userDetails.surname}}</div>
+            </div>
+            <div class="col-4 row wrap">
+              <div class="text-subtitle2 text-weight-bold">School Year:</div>
+              <div class="q-ml-md text-subtitle2 text-weight-bold">2020-2021</div>
+            </div>
+          </div>
+
+          <div class="col-12 row wrap">
+            <div class="col-8 row wrap">
+              <div class="text-subtitle2 text-weight-bold">Course Code:</div>
+              <div class="q-ml-md text-subtitle2 text-weight-bold q-ml-xl">{{classData.subjectCode}}</div>
+            </div>
+            <div class="col-4 row wrap">
+              <div class="text-subtitle2 text-weight-bold">Semester: </div>
+              <div class="q-ml-md text-subtitle2 text-weight-bold">1st Semester</div>
+            </div>
+          </div>
+
+          <div class="col-12 row wrap">
+            <div class="col-12 row wrap">
+               <div class="text-subtitle2 text-weight-bold q-pr-sm">Descriptive Title: </div>
+              <div class="q-ml-md text-subtitle2 text-weight-bold">{{classData.descriptiveTitle}}</div>
+            </div>
+          </div>
+
+        </div>
 
         <div
           style="font-size:22px"
@@ -36,7 +65,7 @@
             square
             name="assignment"
           />
-          Students Lists
+         Student Lists
         </div>
         <q-space />
 
@@ -260,7 +289,7 @@
             key="remarks"
             :props="props"
           >
-           <div class="print-only">
+           <!-- <div class="print-only">
              <span v-if="props.row.remarks ==='In Progress'">
                Incomplete
              </span>
@@ -268,7 +297,7 @@
               {{props.row.remarks}}
              </span>
            </div>
-           <div class="print-hide">
+           <div class="print-hide"> -->
             <q-chip square  dense v-if="props.row.remarks ==='Excellent'" class="text-caption glossy" color="light-green-10" text-color="white" icon="star">Excellent</q-chip>
             <q-chip square dense v-else-if="props.row.remarks ==='Very Satisfactory'" class="text-caption glossy" color="light-green" text-color="white">Very Satis...</q-chip>
             <q-chip square dense v-else-if="props.row.remarks ==='Satisfactory'" class="text-caption glossy" color="lime-8" text-color="white">Satisfactory</q-chip>
@@ -276,7 +305,7 @@
             <q-chip square dense v-else-if="props.row.remarks ==='Poor'" class="text-caption glossy" color="amber-6" text-color="white">Poor</q-chip>
             <q-chip  square dense v-else-if="props.row.remarks ==='Failed'" class="text-caption glossy" color="red-6" text-color="white">Failed</q-chip>
             <q-chip v-else-if="props.row.remarks ==='In Progress'" square dense  class="text-caption glossy" color="blue-5" text-color="white">In Progress</q-chip>
-           </div>
+           <!-- </div> -->
           </q-td>
           <q-td
             key="action"
@@ -295,15 +324,16 @@
         </q-tr>
       </template>
     </q-table>
-    <!-- <pre>
-      {{myClassLists}}
-    </pre> -->
   </div>
 </template>
 
 <script>
 
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
+import { fireDB } from 'boot/firebase'
+// import filter from 'lodash/filter.js'
+import find from 'lodash/find.js'
+// import forEach from 'lodash/forEach.js'
 
 const columns = [
   { sortable: true, headerClasses: 'bg-primary text-white', classes: 'bg-grey-2 ', name: 'fullname', align: 'left', label: 'Name', field: 'fullname' },
@@ -318,6 +348,7 @@ const columns = [
 ]
 
 export default {
+  props: ['classData'],
   data () {
     return {
       separator: 'cell',
@@ -335,7 +366,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['studentLists', 'myClassLists']),
+    ...mapGetters('admin', ['studentLists', 'myAllstudents', 'myClassLists', 'userDetails']),
     classId () {
       return this.$route.params.classId
     },
@@ -348,11 +379,36 @@ export default {
     }
   },
   methods: {
-    ...mapActions('admin', ['registrarStudentLists', 'getMyclassStudents', 'deleteMyClassStudents', 'saveGradeNow']),
-    printStudents () {
-      this.$q.loading.show({
-        spinner: null
+    ...mapActions('admin', ['registrarStudentLists', 'deleteMyClassStudents', 'saveGradeNow']),
+    ...mapMutations('admin', ['commitGetMyclassStudents']),
+    getStudents () {
+      let vm = this
+      let classID = this.$route.params.classId
+
+      let docRef = fireDB.collection('studentsSubject').where('classId', '==', classID)
+      docRef.onSnapshot(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          let studentInfo = find(vm.studentLists, ['keyIndex', doc.data().studentIndex])
+          let allData = { ...studentInfo, ...doc.data() }
+          vm.commitGetMyclassStudents(allData)
+        })
       })
+      // docRef.get()
+      //   .then(function (querySnapshot) {
+      //     querySnapshot.forEach(function (doc) {
+      //       let studentInfo = find(vm.studentLists, ['keyIndex', doc.data().studentIndex])
+      //       let allData = { ...studentInfo, ...doc.data() }
+      //       vm.myClassLists.push(allData)
+      //     })
+      //   })
+      //   .catch(function (error) {
+      //     console.log('Error getting documents: ', error)
+      //   })
+    },
+    printStudents () {
+      // this.$q.loading.show({
+      //   spinner: null
+      // })
       this.isFullscreen = true
       this.visibleColumns = ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks']
       this.pagination.recentRowsPerPage = this.pagination.rowsPerPage
@@ -361,7 +417,7 @@ export default {
 
       this.timer = setTimeout(() => {
         this.visibleColumns = ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks']
-        this.$q.loading.hide()
+        // this.$q.loading.hide()
         this.timer = void 0
         window.print(event)
         this.isFullscreen = false
@@ -423,7 +479,7 @@ export default {
         },
         persistent: true
       }).onOk(() => {
-        vm.deleteMyClassStudents({ 'data': data, 'classId': vm.$route.params.classId })
+        vm.deleteMyClassStudents(data)
           .then(function (result) {
             // ' + data.fullname + '
             vm.$q.notify({
@@ -438,9 +494,10 @@ export default {
     }
 
   },
-  mounted () {
+  created () {
     this.registrarStudentLists()
-    this.getMyclassStudents(this.$route.params.classId)
+    this.getStudents()
+    this.commitGetMyclassStudents(this.$route.params.classId)
   }
 }
 </script>
@@ -449,19 +506,19 @@ export default {
 .myNotify {
   border: 2px solid #027BE3
 }
-@media screen {
+@media screen  {
   .print-only {
     display: none !important;
   }
 
 }
 
-@media print {
+@media print  {
   .headerArea {
     background-image: url('/statics/ckcm/header.png');
     /* background-image: url('/statics/svgBG/jie1.png'); */
     background-size: 100%;
-    width:70%;
+    width:80%;
     background-repeat: no-repeat;
     height:200px
   }

@@ -1,15 +1,14 @@
 import Vue from 'vue'
 import forEach from 'lodash/forEach.js'
+import find from 'lodash/find.js'
 import capitalize from 'lodash/capitalize.js'
 import { myAcroCourse } from './myJs/myAcroCourse'
-// import find from 'lodash/find'
 
 export function clearMyClass (state, payload) {
   state.myClassLists = {}
 }
 
-export function commitDeleteMyclassStudents (state, payload) {
-  console.log(payload)
+export function deleteMyclassStudents (state, payload) {
   Vue.delete(
     state.myClassLists,
     payload.studentIndex
@@ -17,8 +16,9 @@ export function commitDeleteMyclassStudents (state, payload) {
 }
 
 export function commitGetMyclassStudents (state, payload) {
-  Vue.set(state.myClassLists, payload.studentIndex, payload)
-  // })
+  let studentInfo = find(state.studentLists, ['keyIndex', payload.studentIndex])
+  let allData = { ...studentInfo, ...payload }
+  Vue.set(state.myClassLists, payload.studentIndex, allData)
 }
 
 export function commitRegistrarStudentLists (state, payload) {
@@ -44,7 +44,8 @@ export function commitGetClassLists (state, payload) {
 }
 
 export function commitGetClassListsStudents (state, payload) {
-  Vue.set(state.myAllstudents, payload.keyIndex, payload)
+  let GodID = payload.keyIndex + payload.data.studentIndex
+  Vue.set(state.myAllstudents, GodID, payload)
 }
 
 export function deleteClassList (state, payload) {

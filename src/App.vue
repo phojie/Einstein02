@@ -6,7 +6,7 @@
 
 <script>
 import { fireAuth } from 'boot/firebase'
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import { QSpinnerFacebook } from 'quasar'
 export default {
   name: 'App',
@@ -15,11 +15,15 @@ export default {
       loadingFire: false
     }
   },
+  computed: {
+    ...mapGetters('admin', ['studentLists'])
+  },
   methods: {
-    ...mapActions('admin', ['getFireDetails', 'getClassLists'])
+    ...mapActions('admin', ['getFireDetails', 'getClassLists', 'registrarStudentLists'])
   },
   beforeMount () {
     let vm = this
+    this.registrarStudentLists()
     this.getClassLists()
     this.$q.loading.show({
       spinner: QSpinnerFacebook,

@@ -204,7 +204,7 @@ export default {
       this.loading = true
       this.timer = setTimeout(() => {
         this.createNewuser(this.informationData).then(function (result) {
-          vm.$router.push('/')
+          vm.$router.replace({ path: '/', params: { authyes: 'authSucr343wer5545' } })
           LocalStorage.set('FirstLogin', false)
           vm.$v.informationData.$reset()
           vm.loading = false

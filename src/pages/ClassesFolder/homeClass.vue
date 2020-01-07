@@ -43,7 +43,7 @@
           :indeterminate="false"
         />
         <div class="col-xs-12">
-          <gradingTable></gradingTable>
+          <gradingTable :classData="classData"></gradingTable>
         </div>
 
       </div>
@@ -102,7 +102,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists', 'myClassLists', 'getMyclassStudents']),
+    ...mapGetters('admin', ['classLists', 'myClassLists']),
     contentSize () {
       return this.moreContent ? 150 : 5
     }
@@ -120,7 +120,7 @@ export default {
       })
     },
     onClick () {
-      // console.log('Clicked on a fab action')
+      // console.log('Clicked on a fab action hay')
     }
   },
   mounted () {

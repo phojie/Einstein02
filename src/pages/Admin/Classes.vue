@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-page
-      v-if="!classLists.length"
+      v-if="classLists"
       class="flex"
       padding
      >
@@ -82,6 +82,7 @@
               quidem. Veritatis ad consectetur delectus nam, mollitia autem
               voluptate assumenda fugiat asperiores placeat aliquam tenetur
               tempora sunt aliquid, possimus repellat dignissimos.
+
             </q-card-actions>
 
             <q-separator />
@@ -100,7 +101,6 @@
           </q-card>
         </q-intersection>
       </div>
-
     </q-page>
 
     <q-page
@@ -154,14 +154,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists', 'userDetails'])
+    ...mapGetters('admin', ['classLists', 'userDetails', 'myAllstudents'])
   },
   methods: {
-    ...mapActions('admin', ['getClassLists', 'deleteClassList']),
+    ...mapActions('admin', ['deleteClassList', 'getClassLists']),
     ...mapMutations('admin', ['clearMyClass']),
     gotoClass (data) {
-      this.clearMyClass()
-      this.$router.push('/classes/' + data)
+      let vm = this
+      vm.clearMyClass()
+      vm.$router.push('/classes/' + data)
     },
     editAct (data) {
       this.classInfoData = data
@@ -202,6 +203,9 @@ export default {
     test () {
       console.log('test')
     }
+  },
+  created () {
+    this.getClassLists()
   },
   beforeCreate () {
     let firstLogin = this.$route.meta.firstLogin

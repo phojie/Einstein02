@@ -6,20 +6,18 @@ import axios from 'axios'
 import { calCuRounded } from './myJs/roundedValue'
 
 export function saveGradeNow (context, payload) {
-  let data = payload
+  let data = payload.data
   return new Promise((resolve, reject) => {
     calCuRounded(data).then(function (result) {
-      console.log(result.data)
-      let docRef = fireDB.collection('studentsSubject').doc(result.data.keyIndex)
+      console.log(result.remarks)
+      let docRef = fireDB.collection('classLists/' + payload.classId + '/studentLists/').doc(payload.data.keyIndex)
       docRef.set(
         {
-          keyIndex: result.data.keyIndex,
-          classId: result.data.classId,
-          studentIndex: result.data.studentIndex,
-          prelim: result.data.prelim,
-          midterm: result.data.midterm,
-          semi: result.data.semi,
-          final: result.data.final,
+          studentIndex: payload.data.keyIndex,
+          prelim: payload.data.prelim,
+          midterm: payload.data.midterm,
+          semi: payload.data.semi,
+          final: payload.data.final,
           rounded: result.rounded,
           remarks: result.remarks
         },
@@ -34,13 +32,11 @@ export function saveGradeNow (context, payload) {
 
 export function deleteMyClassStudents (context, payload) {
   return new Promise((resolve, reject) => {
-    console.log(payload)
     fireDB
-      .collection('studentsSubject')
-      .doc(payload.keyIndex)
+      .collection('classLists/' + payload.classId + '/studentLists')
+      .doc(payload.data.keyIndex)
       .delete()
       .then(function () {
-        context.commit('commitDeleteMyclassStudents', payload)
         resolve(payload)
       })
       .catch(function (error) {
@@ -49,57 +45,52 @@ export function deleteMyClassStudents (context, payload) {
   })
 }
 
-// export function getMyclassStudents (context, payload) {
-//   return new Promise((resolve, reject) => {
-//     fireAuth.onAuthStateChanged(function (user) {
-//       if (user) {
-//         fireDB.collection('classLists/' + payload + '/studentLists')
-//           .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
-//             snapshot.docChanges().forEach(
-//               function (change) {
-//                 if (change.type === 'added' || change.type === 'modified') {
-//                 // console.log(change.doc.data())
-//                   context.commit('commitGetMyclassStudents', change.doc.data())
-//                 }
-//                 if (change.type === 'modified') {
-//                   context.commit('commitGetMyclassStudents', change.doc.data())
-//                 }
-//                 if (change.type === 'removed') {
-//                   context.commit('deleteMyclassStudents', change.doc.data())
-//                 // console.log('Removed data: ', change.doc.data())
-//                 }
-//                 resolve()
-//               },
-//               function (error) {
-//               // The Promise was rejected.
-//                 console.error(error)
-//                 reject('yawa')
-//               }
-//             )
-//           })
-//       }
-//     })
-//   })
-// }
+export function getMyclassStudents (context, payload) {
+  return new Promise((resolve, reject) => {
+    fireAuth.onAuthStateChanged(function (user) {
+      if (user) {
+        fireDB.collection('classLists/' + payload + '/studentLists')
+          .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+            snapshot.docChanges().forEach(
+              function (change) {
+                if (change.type === 'added' || change.type === 'modified') {
+                // console.log(change.doc.data())
+                  context.commit('commitGetMyclassStudents', change.doc.data())
+                }
+                if (change.type === 'modified') {
+                  context.commit('commitGetMyclassStudents', change.doc.data())
+                }
+                if (change.type === 'removed') {
+                  context.commit('deleteMyclassStudents', change.doc.data())
+                // console.log('Removed data: ', change.doc.data())
+                }
+                resolve()
+              },
+              function (error) {
+              // The Promise was rejected.
+                console.error(error)
+                reject('yawa')
+              }
+            )
+          })
+      }
+    })
+  })
+}
 
 export function registrarStudentLists (context, payload) {
-  axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=600')
+  axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists')
     .then((response) => {
       let data = response.data.documents
-      console.log(data.length)
       context.commit('commitRegistrarStudentLists', data)
     })
 }
 
 export function addClassStudent (context, payload) {
   return new Promise((resolve, reject) => {
-    let docRef = fireDB.collection('studentsSubject/').doc()
-    let myId = docRef.id
+    let docRef = fireDB.collection('classLists/' + payload.classId + '/studentLists/').doc(payload.data.keyIndex)
     docRef.set(
       {
-        classId: payload.classId,
-        instructorId: payload.instructorId,
-        keyIndex: myId,
         studentIndex: payload.data.keyIndex,
         'prelim': null,
         'midterm': null,
@@ -116,34 +107,38 @@ export function addClassStudent (context, payload) {
   })
 }
 
-// export function getClassListsStudents (context, payload) {
-//   fireDB
-//     .collection('studentsSubject')
-//     .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
-//       snapshot.docChanges().forEach(
-//         function (change) {
-//           if (change.type === 'added' || change.type === 'modified') {
-//             var source = snapshot.metadata.fromCache
-//               ? 'local cache'
-//               : 'server'
-//             console.log('Data came from ' + source)
-//             context.commit('commitGetClassListsStudents', change.doc.data())
-//           }
-//           if (change.type === 'modified') {
-//             console.log('Modified data: ', change.doc.data())
-//           }
-//           if (change.type === 'removed') {
-//             context.commit('deleteClassList', change.doc.data())
-//             // console.log('Removed data: ', change.doc.data())
-//           }
-//         },
-//         function (error) {
-//           // The Promise was rejected.
-//           console.error(error)
-//         }
-//       )
-//     })
-// }
+export function getClassListsStudents (context, payload) {
+  fireDB
+    .collection('classLists').doc(payload.keyIndex).collection('studentLists')
+    .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+      snapshot.docChanges().forEach(
+        function (change) {
+          if (change.type === 'added' || change.type === 'modified') {
+            var source = snapshot.metadata.fromCache
+              ? 'local cache'
+              : 'server'
+            console.log('Data came from ' + source)
+            var pleaseLord = {
+              keyIndex: payload.keyIndex,
+              data: change.doc.data()
+            }
+            context.commit('commitGetClassListsStudents', pleaseLord)
+          }
+          if (change.type === 'modified') {
+            console.log('Modified data: ', change.doc.data())
+          }
+          if (change.type === 'removed') {
+            context.commit('deleteClassList', change.doc.data())
+            // console.log('Removed data: ', change.doc.data())
+          }
+        },
+        function (error) {
+          // The Promise was rejected.
+          console.error(error)
+        }
+      )
+    })
+}
 
 export function getClassLists (context, payload) {
   let vm = this
@@ -158,6 +153,7 @@ export function getClassLists (context, payload) {
               function (change) {
                 if (change.type === 'added' || change.type === 'modified') {
                   context.commit('commitGetClassLists', change.doc.data())
+                  context.dispatch('getClassListsStudents', change.doc.data())
                 }
                 if (change.type === 'modified') {
                   console.log('Modified data: ', change.doc.data())
