@@ -24,6 +24,7 @@
           <template v-slot:option="options">
             <q-item
               clickable
+              v-if="tryHay(options.opt)"
               @click="addStudentThis(options.opt)"
               v-ripple
             >
@@ -44,10 +45,9 @@
               </q-item-section>
 
               <q-item-section side>
-                <q-icon
-                  name="info"
-                  color="green"
-                />
+                <q-badge color="blue">
+                  {{options.opt.idnumber}}
+                </q-badge>
               </q-item-section>
             </q-item>
           </template>
@@ -68,10 +68,10 @@
 import forEach from 'lodash/forEach.js'
 import axios from 'axios'
 import { mapActions, mapGetters } from 'vuex'
-
+import find from 'lodash/find.js'
 var stringOptions = []
 
-axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists')
+axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300')
   .then((response) => {
     let data = response.data.documents
     forEach(data, function (value) {
@@ -79,7 +79,8 @@ axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databas
         fullname: value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue,
         keyIndex: value.fields.keyIndex.stringValue,
         course: value.fields.course.stringValue,
-        profileImgUrl: value.fields.profileImgUrl.stringValue
+        profileImgUrl: value.fields.profileImgUrl.stringValue,
+        idnumber: value.fields.idnumber.stringValue
       })
     })
   })
@@ -92,10 +93,18 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['userDetails'])
+    ...mapGetters('admin', ['userDetails', 'myClassLists'])
   },
   methods: {
     ...mapActions('admin', ['addClassStudent']),
+    tryHay (data) {
+      let naaBayawa = find(this.myClassLists, ['studentIndex', data.keyIndex])
+      if (naaBayawa) {
+        return false
+      } else {
+        return true
+      }
+    },
     filterFn (val, update, abort) {
       if (val.length < 2) {
         abort()
@@ -103,7 +112,12 @@ export default {
       }
       update(() => {
         const needle = val.toLowerCase()
-        this.options = stringOptions.filter(v => v.fullname.toLowerCase().indexOf(needle) > -1)
+        let fullnameFilter = stringOptions.filter(v => v.fullname.toLowerCase().indexOf(needle) > -1)
+        let courseFilter = stringOptions.filter(v => v.course.toLowerCase().indexOf(needle) > -1)
+        let idnumberFilter = stringOptions.filter(v => v.idnumber.toLowerCase().indexOf(needle) > -1)
+
+        let myData = fullnameFilter.concat(courseFilter, idnumberFilter)
+        this.options = myData
       })
     },
     addStudentThis (data) {

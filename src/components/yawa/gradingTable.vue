@@ -9,7 +9,6 @@
       :data="myClassLists"
       :fullscreen.sync="isFullscreen"
       :columns="columns"
-      :rows-per-page-options="[]"
       row-key="name"
       :separator="separator"
       :filter="filter"
@@ -20,12 +19,15 @@
       table-class="overFlowHidemeNOt"
       :loading="loading"
     >
-      <template  v-slot:top="props" >
+      <template v-slot:top="props">
         <div class="print-only fit column justify-center items-center content-center ">
-          <div class="headerArea" >
+          <div class="headerArea">
           </div>
         </div>
-        <div style="margin-top:-50px !important" class="print-only fit row justify-center">
+        <div
+          style="margin-top:-50px !important"
+          class="print-only fit row justify-center"
+        >
           <div class="col-12 row wrap">
             <div class="col-8 row wrap">
               <div class="text-subtitle2 text-weight-bold">College Instructor:</div>
@@ -50,7 +52,7 @@
 
           <div class="col-12 row wrap">
             <div class="col-12 row wrap">
-               <div class="text-subtitle2 text-weight-bold q-pr-sm">Descriptive Title: </div>
+              <div class="text-subtitle2 text-weight-bold q-pr-sm">Descriptive Title: </div>
               <div class="q-ml-md text-subtitle2 text-weight-bold">{{classData.descriptiveTitle}}</div>
             </div>
           </div>
@@ -60,12 +62,12 @@
         <div
           style="font-size:22px"
           class="print-hide text-blue-10 q-table__title"
-         >
+        >
           <q-icon
             square
             name="assignment"
           />
-         Student Lists
+          Student Lists
         </div>
         <q-space />
 
@@ -76,7 +78,7 @@
           v-model="filter"
           placeholder="Search"
           class="print-hide q-mr-md-lg text-body1"
-         >
+        >
           <q-icon
             slot="append"
             name="search"
@@ -102,7 +104,7 @@
           icon="print"
           class="print-hide q-ml-md-md cursor-pointer"
           @click="printStudents"
-         >
+        >
           <q-tooltip>
             Print
           </q-tooltip>
@@ -114,7 +116,7 @@
           :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
           @click="props.toggleFullscreen"
           class="print-hide q-ml-md"
-         />
+        />
 
       </template>
       <template v-slot:body="props">
@@ -122,6 +124,7 @@
           <q-td
             key="fullname"
             :props="props"
+            class="text-capitalize"
           >
             {{ props.row.__index + 1 }}.
             {{ `${props.row.lastname}, ${props.row.firstname}`}} {{`${props.row.middlename.charAt(0)}.` || ''}}
@@ -136,7 +139,7 @@
           <q-td
             key="prelim"
             :props="props"
-           >
+          >
             <span class="text-bold">
               {{ props.row.prelim }}
             </span>
@@ -148,11 +151,11 @@
               label-set="Save"
               :validate="validateGrade"
               @save="saveGrade(props.row)"
-               @hide="validateGrade"
+              @hide="validateGrade"
             >
               <template slot="title">
                 <div class="text-subtitle2">
-                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Prelim
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span> Prelim
                 </div>
               </template>
               <q-input
@@ -164,7 +167,10 @@
                 :error-message="errorMessage"
               >
                 <template v-slot:prepend>
-                  <q-icon size="15px" name="rate_review" />
+                  <q-icon
+                    size="15px"
+                    name="rate_review"
+                  />
                 </template>
               </q-input>
             </q-popup-edit>
@@ -172,7 +178,7 @@
           <q-td
             key="midterm"
             :props="props"
-           >
+          >
             <span class="text-bold">
               {{ props.row.midterm }}
             </span>
@@ -183,11 +189,11 @@
               label-set="Save"
               :validate="validateGrade"
               @save="saveGrade(props.row)"
-               @hide="validateGrade"
+              @hide="validateGrade"
             >
               <template slot="title">
                 <div class="text-subtitle2">
-                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Midterm
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span> Midterm
                 </div>
               </template>
               <q-input
@@ -204,7 +210,7 @@
           <q-td
             key="semi"
             :props="props"
-           >
+          >
             <span class="text-bold">
               {{ props.row.semi }}
             </span>
@@ -215,11 +221,11 @@
               label-set="Save"
               :validate="validateGrade"
               @save="saveGrade(props.row)"
-               @hide="validateGrade"
+              @hide="validateGrade"
             >
               <template slot="title">
                 <div class="text-subtitle2">
-                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Semi
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span> Semi
                 </div>
               </template>
               <q-input
@@ -233,7 +239,7 @@
               />
             </q-popup-edit>
           </q-td>
-           <q-td
+          <q-td
             key="final"
             :props="props"
           >
@@ -247,11 +253,11 @@
               label-set="Save"
               :validate="validateGrade"
               @save="saveGrade(props.row)"
-               @hide="validateGrade"
+              @hide="validateGrade"
             >
               <template slot="title">
                 <div class="text-subtitle2">
-                  <span class="text-green text-caption">{{props.row.fullname}}'s</span>  Final
+                  <span class="text-green text-caption">{{props.row.fullname}}'s</span> Final
                 </div>
               </template>
               <q-input
@@ -269,27 +275,27 @@
             key="rounded"
             :props="props"
           >
-           <div class="print-hide">
-            <q-avatar
+            <div class="print-hide">
+              <q-avatar
                 color="blue-7"
                 text-color="white"
                 size="sm"
               >
-              <span class="text-weight-bolder">
-                 {{ props.row.rounded }}
-              </span>
+                <span class="text-weight-bolder">
+                  {{ props.row.rounded }}
+                </span>
 
-            </q-avatar>
-           </div>
-           <div class="print-only">
-            {{props.row.rounded}}
-           </div>
+              </q-avatar>
+            </div>
+            <div class="print-only">
+              {{props.row.rounded}}
+            </div>
           </q-td>
           <q-td
             key="remarks"
             :props="props"
           >
-           <!-- <div class="print-only">
+            <!-- <div class="print-only">
              <span v-if="props.row.remarks ==='In Progress'">
                Incomplete
              </span>
@@ -298,14 +304,64 @@
              </span>
            </div>
            <div class="print-hide"> -->
-            <q-chip square  dense v-if="props.row.remarks ==='Excellent'" class="text-caption glossy" color="light-green-10" text-color="white" icon="star">Excellent</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Very Satisfactory'" class="text-caption glossy" color="light-green" text-color="white">Very Satis...</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Satisfactory'" class="text-caption glossy" color="lime-8" text-color="white">Satisfactory</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Fair'" class="text-caption glossy" color="lime-6 " text-color="white">Fair</q-chip>
-            <q-chip square dense v-else-if="props.row.remarks ==='Poor'" class="text-caption glossy" color="amber-6" text-color="white">Poor</q-chip>
-            <q-chip  square dense v-else-if="props.row.remarks ==='Failed'" class="text-caption glossy" color="red-6" text-color="white">Failed</q-chip>
-            <q-chip v-else-if="props.row.remarks ==='In Progress'" square dense  class="text-caption glossy" color="blue-5" text-color="white">In Progress</q-chip>
-           <!-- </div> -->
+            <q-chip
+              square
+              dense
+              v-if="props.row.remarks ==='Excellent'"
+              class="text-caption glossy"
+              color="light-green-10"
+              text-color="white"
+              icon="star"
+            >Excellent</q-chip>
+            <q-chip
+              square
+              dense
+              v-else-if="props.row.remarks ==='Very Satisfactory'"
+              class="text-caption glossy"
+              color="light-green"
+              text-color="white"
+            >Very Satis...</q-chip>
+            <q-chip
+              square
+              dense
+              v-else-if="props.row.remarks ==='Satisfactory'"
+              class="text-caption glossy"
+              color="lime-8"
+              text-color="white"
+            >Satisfactory</q-chip>
+            <q-chip
+              square
+              dense
+              v-else-if="props.row.remarks ==='Fair'"
+              class="text-caption glossy"
+              color="lime-6 "
+              text-color="white"
+            >Fair</q-chip>
+            <q-chip
+              square
+              dense
+              v-else-if="props.row.remarks ==='Poor'"
+              class="text-caption glossy"
+              color="amber-6"
+              text-color="white"
+            >Poor</q-chip>
+            <q-chip
+              square
+              dense
+              v-else-if="props.row.remarks ==='Failed'"
+              class="text-caption glossy"
+              color="red-6"
+              text-color="white"
+            >Failed</q-chip>
+            <q-chip
+              v-else-if="props.row.remarks ==='In Progress'"
+              square
+              dense
+              class="text-caption glossy"
+              color="blue-5"
+              text-color="white"
+            >In Progress</q-chip>
+            <!-- </div> -->
           </q-td>
           <q-td
             key="action"
@@ -504,26 +560,25 @@ export default {
 
 <style>
 .myNotify {
-  border: 2px solid #027BE3
+  border: 2px solid #027be3;
 }
-@media screen  {
+@media screen {
   .print-only {
     display: none !important;
   }
-
 }
 
-@media print  {
+@media print {
   .headerArea {
-    background-image: url('/statics/ckcm/header.png');
+    background-image: url("/statics/ckcm/header.png");
     /* background-image: url('/statics/svgBG/jie1.png'); */
     background-size: 100%;
-    width:80%;
+    width: 80%;
     background-repeat: no-repeat;
-    height:200px
+    height: 200px;
   }
 
-  .overFlowHidemeNOt{
+  .overFlowHidemeNOt {
     overflow: hidden !important;
   }
   .print-hide {
