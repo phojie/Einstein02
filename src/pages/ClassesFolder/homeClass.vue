@@ -22,8 +22,7 @@
                     </q-toolbar-title>
                   </div>
                   <div class="text-h6">{{classData.subjectCode}}</div>
-                  <div class="text-subtitle1" v-if="myClassLists.length"> {{myClassLists.length}}  Students</div>
-                  <div class="text-subtitle1" v-else>{{myClassLists.length}} Student</div>
+                  <div class="text-subtitle1"> {{classData.length}} Students</div>
                   <q-chip
                     class="q-ma-none q-mt-md"
                     size="17px"
@@ -43,7 +42,20 @@
           :indeterminate="false"
         />
         <div class="col-xs-12">
-          <gradingTable :classData="classData"></gradingTable>
+          <gradingTable :classData=classData v-if="true"></gradingTable>
+          <div
+            v-else
+            class="content-center column"
+            style="margin-top:-15px"
+          >
+            <q-avatar size="300px">
+              <img
+                src="/statics/svgBG/emptystudents.png"
+                alt=""
+              >
+            </q-avatar>
+            <div class="text-subtitle2">Your class doesn't have any students.</div>
+          </div>
         </div>
 
       </div>
@@ -88,11 +100,11 @@
 
 <script>
 import { fireDB } from 'boot/firebase'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   components: {
-    'gradingTable': require('components/yawa/gradingTable.vue').default,
+    'gradingTable': require('components/Tables/gradingTable.vue').default,
     'addStudentForm': require('components/ClassCompo/addStudentForm.vue').default
   },
   data () {
@@ -102,12 +114,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists', 'myClassLists']),
+    ...mapGetters('admin', ['classLists']),
     contentSize () {
       return this.moreContent ? 150 : 5
     }
   },
   methods: {
+    ...mapActions('admin', ['registrarStudentLists']),
     getClassData () {
       let vm = this
       let classID = this.$route.params.classId
@@ -120,11 +133,12 @@ export default {
       })
     },
     onClick () {
-      // console.log('Clicked on a fab action hay')
+      // console.log('Clicked on a fab action')
     }
   },
-  mounted () {
+  created () {
     this.getClassData()
+    this.registrarStudentLists()
   }
 }
 </script>

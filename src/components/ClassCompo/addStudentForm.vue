@@ -73,8 +73,8 @@ var stringOptions = []
 
 axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300')
   .then((response) => {
-    let data = response.data.documents
-    forEach(data, function (value) {
+    let listsResponse = response.data
+    forEach(listsResponse.documents, function (value, key) {
       stringOptions.push({
         fullname: value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue,
         keyIndex: value.fields.keyIndex.stringValue,
@@ -83,6 +83,20 @@ axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databas
         idnumber: value.fields.idnumber.stringValue
       })
     })
+
+    axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300&pageToken=' + listsResponse.nextPageToken)
+      .then((response) => {
+        let listsResponse = response.data
+        forEach(listsResponse.documents, function (value, key) {
+          stringOptions.push({
+            fullname: value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue,
+            keyIndex: value.fields.keyIndex.stringValue,
+            course: value.fields.course.stringValue,
+            profileImgUrl: value.fields.profileImgUrl.stringValue,
+            idnumber: value.fields.idnumber.stringValue
+          })
+        })
+      })
   })
 
 export default {

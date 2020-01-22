@@ -3,13 +3,14 @@ import { fireDB, fireAuth, fireStorage } from 'boot/firebase'
 import capitalize from 'lodash/capitalize.js'
 import { LocalStorage } from 'quasar'
 import axios from 'axios'
+import forEach from 'lodash/forEach.js'
 import { calCuRounded } from './myJs/roundedValue'
+import { myAcroCourse } from './myJs/myAcroCourse'
 
 export function saveGradeNow (context, payload) {
   let data = payload
   return new Promise((resolve, reject) => {
     calCuRounded(data).then(function (result) {
-      console.log(result.data)
       let docRef = fireDB.collection('studentsSubject').doc(result.data.keyIndex)
       docRef.set(
         {
@@ -34,7 +35,6 @@ export function saveGradeNow (context, payload) {
 
 export function deleteMyClassStudents (context, payload) {
   return new Promise((resolve, reject) => {
-    console.log(payload)
     fireDB
       .collection('studentsSubject')
       .doc(payload.keyIndex)
@@ -49,46 +49,92 @@ export function deleteMyClassStudents (context, payload) {
   })
 }
 
-// export function getMyclassStudents (context, payload) {
-//   return new Promise((resolve, reject) => {
-//     fireAuth.onAuthStateChanged(function (user) {
-//       if (user) {
-//         fireDB.collection('classLists/' + payload + '/studentLists')
-//           .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
-//             snapshot.docChanges().forEach(
-//               function (change) {
-//                 if (change.type === 'added' || change.type === 'modified') {
-//                 // console.log(change.doc.data())
-//                   context.commit('commitGetMyclassStudents', change.doc.data())
-//                 }
-//                 if (change.type === 'modified') {
-//                   context.commit('commitGetMyclassStudents', change.doc.data())
-//                 }
-//                 if (change.type === 'removed') {
-//                   context.commit('deleteMyclassStudents', change.doc.data())
-//                 // console.log('Removed data: ', change.doc.data())
-//                 }
-//                 resolve()
-//               },
-//               function (error) {
-//               // The Promise was rejected.
-//                 console.error(error)
-//                 reject('yawa')
-//               }
-//             )
-//           })
-//       }
-//     })
-//   })
-// }
+export function getMyclassStudents (context, payload) {
+  return new Promise((resolve, reject) => {
+    fireAuth.onAuthStateChanged(function (user) {
+      if (user) {
+        fireDB.collection('classLists/' + payload + '/studentLists')
+          .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+            snapshot.docChanges().forEach(
+              function (change) {
+                if (change.type === 'added' || change.type === 'modified') {
+                // console.log(change.doc.data())
+                  context.commit('commitGetMyclassStudents', change.doc.data())
+                }
+                if (change.type === 'modified') {
+                  context.commit('commitGetMyclassStudents', change.doc.data())
+                }
+                if (change.type === 'removed') {
+                  context.commit('deleteMyclassStudents', change.doc.data())
+                // console.log('Removed data: ', change.doc.data())
+                }
+                resolve()
+              },
+              function (error) {
+              // The Promise was rejected.
+                console.error(error)
+                reject('yawa')
+              }
+            )
+          })
+      }
+    })
+  })
+}
 
 export function registrarStudentLists (context, payload) {
-  axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=600')
-    .then((response) => {
-      let data = response.data.documents
-      console.log(data.length)
-      context.commit('commitRegistrarStudentLists', data)
-    })
+  return new Promise((resolve, reject) => {
+    let linkValue = 'https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300'
+    axios.get(linkValue)
+      .then((response) => {
+        let listsResponse = response.data
+        if (listsResponse.documents.length === 300) {
+          getAlllink(listsResponse.nextPageToken)
+        } else {
+          resolve()
+        }
+        forEach(listsResponse.documents, function (value, key) {
+          myAcroCourse(value.fields.course.stringValue).then(function (result) {
+            var dataStu = {
+              firstname: capitalize(value.fields.firstname.stringValue),
+              lastname: capitalize(value.fields.surname.stringValue),
+              middlename: capitalize(value.fields.middlename.stringValue),
+              fullname: capitalize(value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue),
+              keyIndex: value.fields.keyIndex.stringValue,
+              course: result,
+              profileImgUrl: value.fields.profileImgUrl.stringValue
+            }
+            context.commit('commitRegistrarStudentLists', dataStu)
+          })
+        })
+      })
+
+    function getAlllink (nextToken) {
+      axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300&pageToken=' + nextToken)
+        .then((response) => {
+          let listsResponse = response.data
+          if (listsResponse.documents.length === 300) {
+            getAlllink(listsResponse.nextPageToken)
+          } else {
+            resolve()
+          }
+          forEach(listsResponse.documents, function (value, key) {
+            myAcroCourse(value.fields.course.stringValue).then(function (result) {
+              var dataStu = {
+                firstname: capitalize(value.fields.firstname.stringValue),
+                lastname: capitalize(value.fields.surname.stringValue),
+                middlename: capitalize(value.fields.middlename.stringValue),
+                fullname: capitalize(value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue),
+                keyIndex: value.fields.keyIndex.stringValue,
+                course: result,
+                profileImgUrl: value.fields.profileImgUrl.stringValue
+              }
+              context.commit('commitRegistrarStudentLists', dataStu)
+            })
+          })
+        })
+    }
+  })
 }
 
 export function addClassStudent (context, payload) {
@@ -115,35 +161,6 @@ export function addClassStudent (context, payload) {
     resolve()
   })
 }
-
-// export function getClassListsStudents (context, payload) {
-//   fireDB
-//     .collection('studentsSubject')
-//     .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
-//       snapshot.docChanges().forEach(
-//         function (change) {
-//           if (change.type === 'added' || change.type === 'modified') {
-//             var source = snapshot.metadata.fromCache
-//               ? 'local cache'
-//               : 'server'
-//             console.log('Data came from ' + source)
-//             context.commit('commitGetClassListsStudents', change.doc.data())
-//           }
-//           if (change.type === 'modified') {
-//             console.log('Modified data: ', change.doc.data())
-//           }
-//           if (change.type === 'removed') {
-//             context.commit('deleteClassList', change.doc.data())
-//             // console.log('Removed data: ', change.doc.data())
-//           }
-//         },
-//         function (error) {
-//           // The Promise was rejected.
-//           console.error(error)
-//         }
-//       )
-//     })
-// }
 
 export function getClassLists (context, payload) {
   let vm = this
@@ -293,7 +310,6 @@ export function createNewuser (context, payload) {
         'state_changed',
         function (snapshot) {
           var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          console.log(progress)
           if (progress === 100) {
             resolve()
             // context.commit('commitLoading', false)

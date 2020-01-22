@@ -45,7 +45,7 @@
                 @added="addedPhoto"
                 accept="image/*"
               >
-                <template v-slot:list="scope">
+                <template>
                   <q-img
                     spinner-color="blue"
                     :src="informationData.profileImgUrl"

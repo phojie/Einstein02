@@ -1,7 +1,4 @@
 import Vue from 'vue'
-import forEach from 'lodash/forEach.js'
-import capitalize from 'lodash/capitalize.js'
-import { myAcroCourse } from './myJs/myAcroCourse'
 // import find from 'lodash/find'
 
 export function clearMyClass (state, payload) {
@@ -18,25 +15,11 @@ export function commitDeleteMyclassStudents (state, payload) {
 
 export function commitGetMyclassStudents (state, payload) {
   Vue.set(state.myClassLists, payload.studentIndex, payload)
-  // })
 }
 
 export function commitRegistrarStudentLists (state, payload) {
-  forEach(payload, function (value, key) {
-    myAcroCourse(value.fields.course.stringValue).then(function (result) {
-      var dataStu = {
-        firstname: capitalize(value.fields.firstname.stringValue),
-        lastname: capitalize(value.fields.surname.stringValue),
-        middlename: capitalize(value.fields.middlename.stringValue),
-        fullname: capitalize(value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue),
-        keyIndex: value.fields.keyIndex.stringValue,
-        course: result,
-        profileImgUrl: value.fields.profileImgUrl.stringValue
-      }
-      Vue.set(state.studentLists, key, dataStu)
-    })
-    // console.log(state.studentLists)
-  })
+  // console.log(payload)
+  Vue.set(state.studentLists, payload.keyIndex, payload)
 }
 
 export function commitGetClassLists (state, payload) {

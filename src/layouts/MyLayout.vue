@@ -300,8 +300,8 @@
       v-model="addClassDialog"
       persistent
     >
-      <forms-createclass :classInfo="''">
-      </forms-createclass>
+      <formsCreateclass classInfo="">
+      </formsCreateclass>
     </q-dialog>
   </q-layout>
 </template>
@@ -330,11 +330,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists', 'userDetails'])
-
+    ...mapGetters('admin', ['userDetails'])
   },
   methods: {
-    ...mapActions('admin', ['signOutNow', 'getClassLists', 'registrarStudentLists']),
+    ...mapActions('admin', ['signOutNow']),
     signOutNow () {
       // console.log('test')
       let vm = this
@@ -391,9 +390,6 @@ export default {
   created () {
     var loginType = LocalStorage.getItem('FirstLogin')
     this.firstLoginYes = loginType
-    console.log('test', loginType)
-    this.registrarStudentLists()
-    this.getClassLists()
   }
 
 }

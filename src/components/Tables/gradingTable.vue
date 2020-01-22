@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- <pre>
-      {{myClassLists}}
-    </pre> -->
     <q-table
       flat
       bordered
@@ -18,6 +15,7 @@
       :visible-columns="visibleColumns"
       table-class="overFlowHidemeNOt"
       :loading="loading"
+      :dense="denseTable"
     >
       <template v-slot:top="props">
         <div class="print-only fit column justify-center items-center content-center ">
@@ -418,20 +416,15 @@ export default {
         recentRowsPerPage: 0
       },
       errorGrade: false,
-      errorMessage: ''
+      errorMessage: '',
+      loading: false,
+      denseTable: false
     }
   },
   computed: {
     ...mapGetters('admin', ['studentLists', 'myAllstudents', 'myClassLists', 'userDetails']),
     classId () {
       return this.$route.params.classId
-    },
-    loading () {
-      if (this.myClassLists.length) {
-        return false
-      } else {
-        return false
-      }
     }
   },
   methods: {
@@ -439,33 +432,30 @@ export default {
     ...mapMutations('admin', ['commitGetMyclassStudents']),
     getStudents () {
       let vm = this
+      this.loading = true
       let classID = this.$route.params.classId
-
-      let docRef = fireDB.collection('studentsSubject').where('classId', '==', classID)
-      docRef.onSnapshot(function (querySnapshot) {
-        querySnapshot.forEach(function (doc) {
-          let studentInfo = find(vm.studentLists, ['keyIndex', doc.data().studentIndex])
-          let allData = { ...studentInfo, ...doc.data() }
-          vm.commitGetMyclassStudents(allData)
+      this.registrarStudentLists().then(function (result) {
+        let docRef = fireDB.collection('studentsSubject').where('classId', '==', classID)
+        docRef.onSnapshot(function (querySnapshot) {
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach(function (doc) {
+              let studentInfo = find(vm.studentLists, ['keyIndex', doc.data().studentIndex])
+              let allData = { ...studentInfo, ...doc.data() }
+              vm.commitGetMyclassStudents(allData)
+              vm.loading = false
+            })
+          } else {
+            vm.loading = false
+          }
         })
       })
-      // docRef.get()
-      //   .then(function (querySnapshot) {
-      //     querySnapshot.forEach(function (doc) {
-      //       let studentInfo = find(vm.studentLists, ['keyIndex', doc.data().studentIndex])
-      //       let allData = { ...studentInfo, ...doc.data() }
-      //       vm.myClassLists.push(allData)
-      //     })
-      //   })
-      //   .catch(function (error) {
-      //     console.log('Error getting documents: ', error)
-      //   })
     },
     printStudents () {
       // this.$q.loading.show({
       //   spinner: null
       // })
       this.isFullscreen = true
+      this.denseTable = true
       this.visibleColumns = ['fullname', 'course', 'prelim', 'midterm', 'semi', 'final', 'rounded', 'remarks']
       this.pagination.recentRowsPerPage = this.pagination.rowsPerPage
       this.pagination.rowsPerPage = 0
@@ -478,6 +468,7 @@ export default {
         window.print(event)
         this.isFullscreen = false
         this.hidebottom = false
+        this.denseTable = false
         this.pagination.rowsPerPage = this.pagination.recentRowsPerPage
 
         // window.onafterprint = function () {
@@ -548,12 +539,10 @@ export default {
           })
       })
     }
-
   },
   created () {
-    this.registrarStudentLists()
     this.getStudents()
-    this.commitGetMyclassStudents(this.$route.params.classId)
+    // this.commitGetMyclassStudents(this.$route.params.classId)
   }
 }
 </script>

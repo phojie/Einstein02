@@ -6,16 +6,20 @@ export function myAllstudents (state) {
 }
 
 export function myClassLists (state) {
-  var data = filter(state.myClassLists, 'keyIndex')
-  let sorted = sortBy(data, [function (val) {
-    return val.lastname
-  }])
+  let sorted = []
+  if (state.myClassLists.length !== 0) {
+    var data = filter(state.myClassLists, 'keyIndex')
+    sorted = sortBy(data, [function (val) {
+      return val.lastname
+    }])
+  }
+
   return sorted
 }
 
 export function studentLists (state) {
-  // var data = filter(state.studentLists, 'keyIndex')
-  return state.studentLists
+  var data = filter(state.studentLists, 'keyIndex')
+  return data
 }
 
 export function classLists (state) {

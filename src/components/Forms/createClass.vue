@@ -130,6 +130,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.classInfo)
     let vm = this
     if (vm.classInfo !== '') {
       this.editDataInfo(this.classInfo)
