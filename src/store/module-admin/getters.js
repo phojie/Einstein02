@@ -5,14 +5,22 @@ export function myAllstudents (state) {
   return state.myAllstudents
 }
 
+export function loadingArea (state) {
+  return state.loadingArea
+}
+
 export function myClassLists (state) {
   let sorted = []
   if (state.myClassLists.length !== 0) {
     var data = filter(state.myClassLists, 'keyIndex')
     sorted = sortBy(data, [function (val) {
-      return val.lastname
+      return val.surname
     }])
   }
+
+  sorted.forEach((row, index) => {
+    row.index = index
+  })
 
   return sorted
 }

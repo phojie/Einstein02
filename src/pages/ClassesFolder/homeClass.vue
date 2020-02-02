@@ -21,15 +21,17 @@
                       {{classData.descriptiveTitle}}
                     </q-toolbar-title>
                   </div>
-                  <div class="text-h6">{{classData.subjectCode}}</div>
-                  <div class="text-subtitle1"> {{classData.length}} Students</div>
+                  <div class="text-h6 text-uppercase">{{classData.courseCode}}</div>
+                  <div class="text-body2">{{classData.schoolYear}} - {{parseInt(classData.schoolYear) + 1}} | {{classData.semester}}</div>
+                  <div class="text-body1">Schedule: Day: {{classData.day}} Time: {{classData.timeFrom}} - {{classData.timeTo}}</div>
+                  <div class="text-subtitle1">Total Students: {{myClassLists.length}} </div>
                   <q-chip
                     class="q-ma-none q-mt-md"
                     size="17px"
                     square
                     icon="bookmark"
                   >
-                    {{classData.className}}
+                    Room: {{classData.room}}
                   </q-chip>
                 </div>
               </div>
@@ -39,7 +41,6 @@
         <q-linear-progress
           size="3px"
           class="q-ma-md q-mx-xl"
-          :indeterminate="false"
         />
         <div class="col-xs-12">
           <gradingTable :classData=classData v-if="true"></gradingTable>
@@ -62,7 +63,7 @@
 
     </q-page>
 
-    <q-page-sticky
+    <!-- <q-page-sticky
       position="bottom-right"
       :offset="[18, 18]"
     >
@@ -86,7 +87,7 @@
         >
         </q-fab-action>
       </q-fab>
-    </q-page-sticky>
+    </q-page-sticky> -->
 
     <q-dialog
       v-model="addForm"
@@ -114,7 +115,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('admin', ['classLists']),
+    ...mapGetters('admin', ['classLists', 'loadingArea', 'myClassLists']),
     contentSize () {
       return this.moreContent ? 150 : 5
     }
@@ -125,7 +126,7 @@ export default {
       let vm = this
       let classID = this.$route.params.classId
 
-      let docRef = fireDB.collection('classLists').doc(classID)
+      let docRef = fireDB.collection('VPAA/subjectSchedules/Lists').doc(classID)
       docRef.onSnapshot({
         includeMetadataChanges: true
       }, function (doc) {

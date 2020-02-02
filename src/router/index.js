@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
 import { LocalStorage } from 'quasar'
-
+// import { fireAuth } from '../boot/firebase'
 Vue.use(VueRouter)
 
 /*
@@ -24,6 +24,8 @@ export default function (/* { store, ssrContext } */) {
 
   Router.beforeEach((to, from, next) => {
     const currentUser = LocalStorage.getItem('uid')
+    // let currentUser = fireAuth.currentUser
+    console.log(currentUser)
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     if (requiresAuth && !currentUser) {
       next({

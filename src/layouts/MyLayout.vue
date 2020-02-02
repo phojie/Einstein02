@@ -1,9 +1,8 @@
 <template>
   <q-layout >
     <q-header
-      v-if="!firstLoginYes"
       class="bg-white text-grey-7 shadow-1"
-     >
+      >
           <!-- class="text-white"
       style="background: #24292e" -->
       <q-toolbar>
@@ -325,8 +324,7 @@ export default {
       options: null,
       filteredOptions: [],
       addClassDialog: false,
-      userFire: [],
-      firstLoginYes: false
+      userFire: []
     }
   },
   computed: {
@@ -388,8 +386,6 @@ export default {
 
   },
   created () {
-    var loginType = LocalStorage.getItem('FirstLogin')
-    this.firstLoginYes = loginType
   }
 
 }

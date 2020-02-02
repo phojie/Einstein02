@@ -20,7 +20,7 @@
           @filter="filterFn"
           hint="You can only add enrolled students"
           style="width: 100%"
-        >
+         >
           <template v-slot:option="options">
             <q-item
               clickable

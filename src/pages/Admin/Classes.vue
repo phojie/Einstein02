@@ -30,22 +30,23 @@
                     class="text-h5 text-grey-10 cursor-pointer"
                     style="text-decoration:none; "
                   >
-                    <q-toolbar-title class="text-white">
+                    <q-toolbar-title class="text-white text-capitalize">
                       {{list.descriptiveTitle}}
                       <q-tooltip>
                         {{list.descriptiveTitle}}
                       </q-tooltip>
                     </q-toolbar-title>
                   </div>
-                  <div class="text-subtitle2">{{list.subjectCode}}</div>
-                  <!-- <div class="text-subtitle2">25 Students</div> -->
+                  <div class="text-subtitle2 text-uppercase">{{list.courseCode}}</div>
+                  <div class="text-subtitle2">{{list.schoolYear}} - {{parseInt(list.schoolYear) + 1}} | {{list.semester}}</div>
+                  <div class="text-caption">Schedule: Day: {{list.day}} Time: {{list.timeFrom}} - {{list.timeTo}}</div>
                   <q-chip
-                    class="q-ma-none q-mt-md"
+                    class="text-uppercase q-ma-none q-mt-md"
                     size="12px"
                     square
                     icon="bookmark"
                   >
-                    {{list.className}}
+                    Room: {{list.room}}
                   </q-chip>
                 </div>
 
@@ -141,7 +142,6 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from 'vuex'
-import { LocalStorage } from 'quasar'
 
 export default {
   components: {
@@ -205,19 +205,16 @@ export default {
     }
   },
   created () {
-    this.getClassLists()
-  },
-  beforeCreate () {
-    let firstLogin = this.$route.meta.firstLogin
-    const loginType = LocalStorage.getItem('FirstLogin')
-    if (firstLogin && loginType) {
-      this.$router.push({
-        path: '/settings/profile',
-        query: {
-          redirect: 'firstAuth.php'
-        }
-      })
-    }
+    // let vm = this
+    // this.getClassLists().then(function (result) {
+    // }, function () {
+    //   vm.$q.notify({
+    //     message: 'Something is wrong!',
+    //     color: 'warning',
+    //     timeout: 2000,
+    //     icon: 'warning'
+    //   })
+    // })
   }
 
 }

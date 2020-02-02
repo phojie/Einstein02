@@ -2,15 +2,14 @@ import { fireDB, fireAuth, fireStorage } from 'boot/firebase'
 // import Vue from 'vue'
 import capitalize from 'lodash/capitalize.js'
 import { LocalStorage } from 'quasar'
-import axios from 'axios'
-import forEach from 'lodash/forEach.js'
+import Vue from 'vue'
 import { calCuRounded } from './myJs/roundedValue'
-import { myAcroCourse } from './myJs/myAcroCourse'
 
 export function saveGradeNow (context, payload) {
   let data = payload
   return new Promise((resolve, reject) => {
     calCuRounded(data).then(function (result) {
+      console.log(result.data)
       let docRef = fireDB.collection('studentsSubject').doc(result.data.keyIndex)
       docRef.set(
         {
@@ -35,6 +34,7 @@ export function saveGradeNow (context, payload) {
 
 export function deleteMyClassStudents (context, payload) {
   return new Promise((resolve, reject) => {
+    console.log(payload)
     fireDB
       .collection('studentsSubject')
       .doc(payload.keyIndex)
@@ -53,12 +53,13 @@ export function getMyclassStudents (context, payload) {
   return new Promise((resolve, reject) => {
     fireAuth.onAuthStateChanged(function (user) {
       if (user) {
+        // fireDB.collection('studentsSubject')
         fireDB.collection('classLists/' + payload + '/studentLists')
           .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
             snapshot.docChanges().forEach(
               function (change) {
                 if (change.type === 'added' || change.type === 'modified') {
-                // console.log(change.doc.data())
+                  // console.log(change.doc.data(),'test')
                   context.commit('commitGetMyclassStudents', change.doc.data())
                 }
                 if (change.type === 'modified') {
@@ -82,59 +83,50 @@ export function getMyclassStudents (context, payload) {
   })
 }
 
-export function registrarStudentLists (context, payload) {
+export function registrarStudentLists ({ commit, state }) {
   return new Promise((resolve, reject) => {
-    let linkValue = 'https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300'
-    axios.get(linkValue)
-      .then((response) => {
-        let listsResponse = response.data
-        if (listsResponse.documents.length === 300) {
-          getAlllink(listsResponse.nextPageToken)
-        } else {
-          resolve()
-        }
-        forEach(listsResponse.documents, function (value, key) {
-          myAcroCourse(value.fields.course.stringValue).then(function (result) {
-            var dataStu = {
-              firstname: capitalize(value.fields.firstname.stringValue),
-              lastname: capitalize(value.fields.surname.stringValue),
-              middlename: capitalize(value.fields.middlename.stringValue),
-              fullname: capitalize(value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue),
-              keyIndex: value.fields.keyIndex.stringValue,
-              course: result,
-              profileImgUrl: value.fields.profileImgUrl.stringValue
-            }
-            context.commit('commitRegistrarStudentLists', dataStu)
-          })
-        })
-      })
+    if (state.studentLists.__ob__.vmCount === 0) {
+      fireDB
+        .collection('studentLists')
+        .onSnapshot(function (snapshot) {
+          snapshot.docChanges().forEach(
+            function (change) {
+              if (change.type === 'added' || change.type === 'modified') {
+                // console.log(change.doc.data())
+                const data = {
+                  id: change.doc.data().keyIndex,
+                  information: change.doc.data()
+                }
+                const fullname = `${change.doc.data().firstname} ${change.doc.data().middlename.charAt(0)}. ${change.doc.data().surname}`
 
-    function getAlllink (nextToken) {
-      axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=300&pageToken=' + nextToken)
-        .then((response) => {
-          let listsResponse = response.data
-          if (listsResponse.documents.length === 300) {
-            getAlllink(listsResponse.nextPageToken)
-          } else {
-            resolve()
-          }
-          forEach(listsResponse.documents, function (value, key) {
-            myAcroCourse(value.fields.course.stringValue).then(function (result) {
-              var dataStu = {
-                firstname: capitalize(value.fields.firstname.stringValue),
-                lastname: capitalize(value.fields.surname.stringValue),
-                middlename: capitalize(value.fields.middlename.stringValue),
-                fullname: capitalize(value.fields.firstname.stringValue + ' ' + value.fields.surname.stringValue),
-                keyIndex: value.fields.keyIndex.stringValue,
-                course: result,
-                profileImgUrl: value.fields.profileImgUrl.stringValue
+                Vue.set(data.information, 'fullname', fullname)
+                commit('commitRegistrarStudentLists', data)
               }
-              context.commit('commitRegistrarStudentLists', dataStu)
-            })
-          })
+              if (change.type === 'modified') {
+              }
+              if (change.type === 'removed') {
+                // console.log('Removed city: ', change.doc.data())
+                commit('commitDeleteStudentLists', change.doc.data())
+              }
+              resolve()
+            },
+            function (error) {
+              // The Promise was rejected.
+              reject()
+              console.error(error)
+            }
+          )
         })
+    } else {
+      resolve()
     }
   })
+  // axios.get('https://firestore.googleapis.com/v1/projects/einstein00-cf6cc/databases/(default)/documents/studentLists?key=AIzaSyDj_LP5qQQjWNA3LQ6D2ojl9GURZXQq-rk&pageSize=600')
+  //   .then((response) => {
+  //     let data = response.data.documents
+  //     console.log(data.length)
+  //     context.commit('commitRegistrarStudentLists', data)
+  //   })
 }
 
 export function addClassStudent (context, payload) {
@@ -162,39 +154,63 @@ export function addClassStudent (context, payload) {
   })
 }
 
-export function getClassLists (context, payload) {
-  let vm = this
-  fireAuth.onAuthStateChanged(function (user) {
-    if (user) {
-      return new Promise((resolve, reject) => {
-        fireDB
-          .collection('classLists').where('instructorIndex', '==', user.uid)
-          .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
-            resolve()
-            snapshot.docChanges().forEach(
-              function (change) {
-                if (change.type === 'added' || change.type === 'modified') {
-                  context.commit('commitGetClassLists', change.doc.data())
-                }
-                if (change.type === 'modified') {
-                  console.log('Modified data: ', change.doc.data())
-                }
-                if (change.type === 'removed') {
-                  context.commit('deleteClassList', change.doc.data())
-                  // console.log('Removed data: ', change.doc.data())
-                }
-              },
-              function (error) {
-                // The Promise was rejected.
-                reject()
-                console.error(error)
-              }
-            )
-          })
+// export function getClassListsStudents (context, payload) {
+//   fireDB
+//     .collection('studentsSubject')
+//     .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+//       snapshot.docChanges().forEach(
+//         function (change) {
+//           if (change.type === 'added' || change.type === 'modified') {
+//             var source = snapshot.metadata.fromCache
+//               ? 'local cache'
+//               : 'server'
+//             console.log('Data came from ' + source)
+//             context.commit('commitGetClassListsStudents', change.doc.data())
+//           }
+//           if (change.type === 'modified') {
+//             console.log('Modified data: ', change.doc.data())
+//           }
+//           if (change.type === 'removed') {
+//             context.commit('deleteClassList', change.doc.data())
+//             // console.log('Removed data: ', change.doc.data())
+//           }
+//         },
+//         function (error) {
+//           // The Promise was rejected.
+//           console.error(error)
+//         }
+//       )
+//     })
+// }
+
+export function getClassLists ({ commit, state }, payload) {
+  console.log(state.userDetails.keyIndex)
+  return new Promise((resolve, reject) => {
+    fireDB
+      .collection('VPAA/subjectSchedules/Lists').where('instructorKeyIndex', '==', state.userDetails.keyIndex)
+      .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+        snapshot.docChanges().forEach(
+          function (change) {
+            if (change.type === 'added' || change.type === 'modified') {
+              console.log(change.doc.data())
+              commit('commitGetClassLists', change.doc.data())
+            }
+            if (change.type === 'modified') {
+              console.log('Modified data: ', change.doc.data())
+            }
+            if (change.type === 'removed') {
+              commit('deleteClassList', change.doc.data())
+              // console.log('Removed data: ', change.doc.data())
+            }
+          },
+          function (error) {
+            // The Promise was rejected.
+            reject()
+            console.error(error)
+          }
+        )
+        resolve()
       })
-    } else {
-      vm.$router.replace('/auth')
-    }
   })
 }
 
@@ -288,13 +304,34 @@ export function handleAuthStateChanged (context, payload) {
   })
 }
 
+// export function getFireDetails (context, payload) {
+//   fireDB.collection('Registrar/Personnel/Lists')
+//      .where("contactNumber", "==", )
+//     .onSnapshot({
+//       includeMetadataChanges: true
+//     }, function (doc) {
+//       context.commit('commitGetUserDetails', doc.data())
+//     })
+// }
+
 export function getFireDetails (context, payload) {
-  fireDB.collection('users').doc(payload)
-    .onSnapshot({
-      includeMetadataChanges: true
-    }, function (doc) {
-      context.commit('commitGetUserDetails', doc.data())
-    })
+  return new Promise((resolve, reject) => {
+    fireDB.collection('Registrar/Personnel/Lists')
+      .where('contactNumber', '==', payload.phoneNumber).get()
+      .then(snapshot => {
+        if (snapshot.empty) {
+          console.log('No matching documents.')
+          reject(snapshot.empty)
+        }
+        snapshot.forEach(doc => {
+          resolve(doc.data())
+          context.commit('commitGetUserDetails', doc.data())
+        })
+      })
+      .catch(err => {
+        console.log('Error getting documents', err)
+      })
+  })
 }
 
 export function createNewuser (context, payload) {
@@ -310,6 +347,7 @@ export function createNewuser (context, payload) {
         'state_changed',
         function (snapshot) {
           var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          console.log(progress)
           if (progress === 100) {
             resolve()
             // context.commit('commitLoading', false)

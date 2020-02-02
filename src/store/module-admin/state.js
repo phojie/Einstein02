@@ -6,5 +6,6 @@ export default {
   firstLogin: false,
   userDetails: [],
   fireDetails: {},
+  loadingArea: false,
   loadingPage: false
 }

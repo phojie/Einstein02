@@ -30,6 +30,11 @@ const routes = [
     ]
   },
   {
+    path: '/classes/:classId/fullscreen',
+    component: () => import('pages/ClassesFolder/homeClassFullscreen.vue'),
+    name: 'classDashFULL'
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('layouts/yawaSettings/settingDash.vue'),

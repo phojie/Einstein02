@@ -1,12 +1,15 @@
 import Vue from 'vue'
 // import find from 'lodash/find'
 
+export function commitDeleteStudentLists (state, payload) {
+  Vue.delete(state.studentLists, payload.keyIndex)
+}
+
 export function clearMyClass (state, payload) {
   state.myClassLists = {}
 }
 
 export function commitDeleteMyclassStudents (state, payload) {
-  console.log(payload)
   Vue.delete(
     state.myClassLists,
     payload.studentIndex
@@ -17,9 +20,12 @@ export function commitGetMyclassStudents (state, payload) {
   Vue.set(state.myClassLists, payload.studentIndex, payload)
 }
 
+export function commitloadingArea (state, payload) {
+  state.loadingArea = payload
+}
+
 export function commitRegistrarStudentLists (state, payload) {
-  // console.log(payload)
-  Vue.set(state.studentLists, payload.keyIndex, payload)
+  Vue.set(state.studentLists, payload.id, payload.information)
 }
 
 export function commitGetClassLists (state, payload) {
@@ -39,7 +45,6 @@ export function deleteClassList (state, payload) {
 
 export function commitFirstLogin (state, payload) {
   state.firstLogin = payload
-  console.log(state.firstLogin)
 }
 
 export function commitGetUserDetails (state, payload) {

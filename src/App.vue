@@ -22,7 +22,6 @@ export default {
   },
   beforeMount () {
     let vm = this
-
     this.$q.loading.show({
       spinner: QSpinnerFacebook,
       spinnerColor: 'primary',
@@ -32,7 +31,19 @@ export default {
       if (user) {
         vm.$q.loading.hide()
         vm.loadingFire = true
-        vm.getFireDetails(user.uid)
+        // console.log(user)
+        vm.getFireDetails(user).then(function (result) {
+          // console.log(result, 'here')
+          vm.getClassLists()
+        }, function () {
+          vm.$q.notify({
+            message: 'Something is wrong!',
+            color: 'warning',
+            timeout: 2000,
+            icon: 'warning'
+          })
+        })
+
         // vm.registrarStudentLists()
         // vm.getClassLists()
       } else {

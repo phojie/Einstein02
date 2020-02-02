@@ -30,7 +30,7 @@ export default {
           provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
           recaptchaParameters: {
             type: 'image', // 'audio'
-            size: 'normal', // 'invisible' or 'compact'
+            size: 'invisible', // 'invisible' or 'compact'
             badge: 'bottomleft' // ' bottomright' or 'inline' applies to invisible.
           },
           defaultCountry: 'PH' // Set default country to the United Kingdom (+44).
